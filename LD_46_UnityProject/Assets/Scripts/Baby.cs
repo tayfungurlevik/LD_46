@@ -28,17 +28,31 @@ public class Baby : MonoBehaviour
     private float hunger;
     private float thirst;
     private float sickness;
-    private AudioSource audioSource;
+    
+
 
     public static event Action<float> OnHealthChanged = delegate { };
     public static event Action<float> OnHungerChanged = delegate { };
     public static event Action<float> OnThirstChanged = delegate { };
     public static event Action<float> OnSicknessChanged = delegate { };
-
+    public static event Action OnBabyDied = delegate { };
     // Start is called before the first frame update
+    private void OnEnable()
+    {
+        GameFinish.OnGameFinishLinePassed += GameFinish_OnGameFinishLinePassed;
+    }
+    private void OnDisable()
+    {
+        GameFinish.OnGameFinishLinePassed -= GameFinish_OnGameFinishLinePassed;
+    }
+    private void GameFinish_OnGameFinishLinePassed()
+    {
+        StopAllCoroutines();
+    }
+
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        
 
         health = maxHealth;
         sickness = maxSickness;
@@ -134,9 +148,11 @@ public class Baby : MonoBehaviour
         }
     }
 
-    private void Die()
+    public void Die()
     {
-        audioSource.Play();
-        Destroy(gameObject,1);
+        StopAllCoroutines();
+        
+        OnBabyDied?.Invoke();
+        Destroy(gameObject);
     }
 }

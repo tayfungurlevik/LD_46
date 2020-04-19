@@ -1,27 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Consumable : MonoBehaviour
 {
-    enum ConsumableType { Food,Milk,Medicine}
+    public enum ConsumableType { Food,Milk,Medicine}
     [SerializeField]
     private ConsumableType type;
     [SerializeField]
     private float value;
-    [SerializeField] AudioClip sound;
+    public static event Action<ConsumableType> OnConsumableHit = delegate { };
 
-    AudioSource audioSource;
-    private void Start()
-    {
-        audioSource = GetComponent<AudioSource>();
-    }
+    
     private void OnTriggerEnter(Collider other)
     {
         var baby = other.GetComponent<Baby>();
         if (baby != null)
         {
-            audioSource.PlayOneShot(sound);
+            //audioSource.PlayOneShot(sound);
+            OnConsumableHit?.Invoke(type);
             switch (type)
             {
                 case ConsumableType.Food:
@@ -36,7 +34,7 @@ public class Consumable : MonoBehaviour
                 default:
                     break;
             }
-            Destroy(gameObject, 0.4f);
+            Destroy(gameObject);
         }
     }
     
